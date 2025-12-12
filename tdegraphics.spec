@@ -1,12 +1,18 @@
-#
-# Please submit bugfixes or comments via http://www.trinitydesktop.org/
-#
+%bcond clang 1
+%bcond gamin 1
+%bcond paper 1
+%bcond t1lib 1
+%bcond pdf 1
+%bcond kamera 1
+%bcond kmrml 0
 
 # TDE variables
 %define tde_epoch 2
 %if "%{?tde_version}" == ""
 %define tde_version 14.1.5
 %endif
+%define pkg_rel 2
+
 %define tde_pkg tdegraphics
 %define tde_prefix /opt/trinity
 %define tde_bindir %{tde_prefix}/bin
@@ -21,31 +27,24 @@
 %define tde_tdeincludedir %{tde_includedir}/tde
 %define tde_tdelibdir %{tde_libdir}/trinity
 
-%if 0%{?mdkversion}
 %undefine __brp_remove_la_files
 %define dont_remove_libtool_files 1
 %define _disable_rebuild_configure 1
-%endif
 
 # fixes error: Empty %files file …/debugsourcefiles.list
 %define _debugsource_template %{nil}
 
 %define tarball_name %{tde_pkg}-trinity
-%global toolchain %(readlink /usr/bin/cc)
 
 
 Name:		trinity-%{tde_pkg}
 Version:	%{tde_version}
-Release:	%{?!preversion:1}%{?preversion:0_%{preversion}}%{?dist}
+Release:	%{?!preversion:%{pkg_rel}}%{?preversion:0_%{preversion}}%{?dist}
 Summary:    Trinity Desktop Environment - Graphics Applications
 Group:      Productivity/Graphics/Viewers
 URL:		http://www.trinitydesktop.org/
 
-%if 0%{?suse_version}
-License:		GPL-2.0+
-%else
 License:		GPLv2+
-%endif
 
 #Vendor:			Trinity Desktop
 #Packager:		Francois Andriot <francois.andriot@free.fr>
@@ -58,38 +57,46 @@ Source1:	%{name}-rpmlintrc
 # scheduled for R14.1.6
 Patch0:   tdegraphics-poppler-25.10.patch
 
-BuildRequires:  cmake make
+BuildSystem:    cmake
+BuildOption:    -DCMAKE_BUILD_TYPE="RelWithDebInfo"
+BuildOption:    -DCMAKE_SKIP_RPATH=OFF
+BuildOption:    -DCMAKE_SKIP_INSTALL_RPATH=OFF
+BuildOption:    -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON
+BuildOption:    -DCMAKE_INSTALL_RPATH="%{tde_libdir}"
+BuildOption:    -DCMAKE_NO_BUILTIN_CHRPATH=ON
+BuildOption:    -DCMAKE_INSTALL_PREFIX=%{tde_prefix}
+BuildOption:    -DBIN_INSTALL_DIR=%{tde_bindir}
+BuildOption:    -DCONFIG_INSTALL_DIR="%{tde_confdir}"
+BuildOption:    -DINCLUDE_INSTALL_DIR=%{tde_tdeincludedir}
+BuildOption:    -DLIB_INSTALL_DIR=%{tde_libdir}
+BuildOption:    -DSHARE_INSTALL_PREFIX=%{tde_datadir}
+BuildOption:    -DPKGCONFIG_INSTALL_DIR="%{tde_libdir}/pkgconfig"
+BuildOption:    -DWITH_TIFF=ON -DWITH_OPENEXR=ON
+BuildOption:    -DBUILD_ALL=ON -DBUILD_KUICKSHOW=OFF
+%{?with_t1lib:BuildOption:    -DWITH_T1LIB=ON}
+%{?with_paper:BuildOption:    -DWITH_LIBPAPER=ON}
+%{?with_pdf:BuildOption:    -DWITH_PDF=ON}
+%{?!with_pdf:BuildOption:    -DWITH_PDF=OFF}
+%{!?with_kmrml:BuildOption:    -DBUILD_KMRML=OFF}
+%{?with_kamera:BuildOption:    -DBUILD_KAMERA=ON}
+%{!?with_kamera:BuildOption:    -DBUILD_KAMERA=OFF}
 
 BuildRequires: trinity-tdelibs-devel >= %{tde_version}
 BuildRequires: trinity-tdebase-devel >= %{tde_version}
 
 BuildRequires:	trinity-tde-cmake >= %{tde_version}
-%if "%{?toolchain}" != "clang"
-BuildRequires:	gcc-c++
-%endif
+
+%{!?with_clang:BuildRequires:	gcc-c++}
+
 BuildRequires:	gettext
 BuildRequires:	libtool
 BuildRequires:	fdupes
-
-# SUSE desktop files utility
-%if 0%{?suse_version}
-BuildRequires:	update-desktop-files
-%endif
-
-%if 0%{?opensuse_bs} && 0%{?suse_version}
-# for xdg-menu script
-BuildRequires:	brp-check-trinity
-%endif
 
 # IDN support
 BuildRequires:	pkgconfig(libidn)
 
 # GAMIN support
-#  Not on openSUSE.
-%if ( 0%{?rhel} && 0%{?rhel} <= 8 ) || ( 0%{?fedora} && 0%{?fedora} <= 33 ) || 0%{?mgaversion} || 0%{?mdkversion}
-%define with_gamin 1
-BuildRequires:	pkgconfig(gamin)
-%endif
+%{?with_gamin:BuildRequires:	pkgconfig(gamin)}
 
 # LIBUSB support
 BuildRequires:	pkgconfig(libusb)
@@ -108,44 +115,16 @@ BuildRequires:  pkgconfig(libpcre2-posix)
 BuildRequires:  pkgconfig(libacl)
 
 # GIF support
-%if 0%{?suse_version} || 0%{?fedora} >= 28 || 0%{?rhel} >= 8
-BuildRequires: giflib-devel
-%else
-%if 0%{?mdkver}
 BuildRequires: %{_lib}gif-devel
-%else
-BuildRequires: libungif-devel
-%endif
-%endif
 
 # GPHOTO2 support
 BuildRequires:  pkgconfig(libgphoto2)
 
 # PAPER support
-%if 0%{?rhel} || 0%{?fedora} || 0%{?mgaversion} || 0%{?mdkversion}
-%define with_paper 1
-%if 0%{?mgaversion} || 0%{?mdkversion}
-BuildRequires:	%{_lib}paper-devel
-%endif
-%if 0%{?rhel} || 0%{?fedora}
-BuildRequires:	libpaper-devel
-%endif
-%endif
+%{?with_paper:BuildRequires:	%{_lib}paper-devel}
 
 # T1LIB support
-%if 0%{?suse_version} && 0%{?suse_version} <= 1230
-%define with_t1lib 1
-BuildRequires:	t1lib-devel
-%endif
-%if 0%{?mgaversion} || 0%{?mdkversion} || (0%{?rhel} >= 5 && 0%{?rhel} <= 7) || 0%{?fedora}
-%define with_t1lib 1
-%if 0%{?mgaversion} || 0%{?mdkversion}
-BuildRequires:	%{_lib}t1lib-devel
-%endif
-%if 0%{?rhel} >= 5 || 0%{?fedora}
-BuildRequires:	t1lib-devel
-%endif
-%endif
+%{?with_t1lib:BuildRequires:	%{_lib}t1lib-devel}
 
 # SANE support
 BuildRequires:  pkgconfig(sane-backends)
@@ -166,10 +145,7 @@ BuildRequires:  pkgconfig(libdrm)
 BuildRequires:  pkgconfig(OpenEXR)
 
 # POPPLER support
-%define with_pdf 1
-%if 0%{?with_pdf}
-BuildRequires:  pkgconfig(poppler)
-%endif
+%{?with_pdf:BuildRequires:  pkgconfig(poppler)}
 
 # LCMS support
 BuildRequires:  pkgconfig(lcms)
@@ -183,13 +159,8 @@ BuildRequires:  pkgconfig(openssl)
 BuildRequires:  pkgconfig(xft)
 
 # kamera
-%if 0%{?mgaversion} || 0%{?mdkversion} || 0%{?rhel} >= 5 || 0%{?fedora} || 0%{?suse_version}
-%define build_kamera 1
-%endif
-
 # kmrml (deprecated)
-#define build_kmrml 1
-%if 0%{?build_kmrml}
+%if %{with kmrml}
 #Requires:		gift
 %else
 Obsoletes:		trinity-kmrml < %{?epoch:%{epoch}:}%{version}-%{release}
@@ -203,7 +174,7 @@ Obsoletes:	trinity-kdegraphics-extras < %{?epoch:%{epoch}:}%{version}-%{release}
 Provides:	trinity-kdegraphics-extras = %{?epoch:%{epoch}:}%{version}-%{release}
 
 
-%{?build_kamera:Requires: trinity-kamera = %{?epoch:%{epoch}:}%{version}-%{release}}
+%{?with_kamera:Requires: trinity-kamera = %{?epoch:%{epoch}:}%{version}-%{release}}
 Requires: trinity-kcoloredit = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires: %{name}-kfile-plugins = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires: trinity-kdvi = %{?epoch:%{epoch}:}%{version}-%{release}
@@ -212,7 +183,7 @@ Requires: trinity-kfaxview = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires: trinity-kgamma = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires: trinity-kghostview = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires: trinity-kiconedit = %{?epoch:%{epoch}:}%{version}-%{release}
-%{?build_kmrml:Requires: trinity-kmrml = %{?epoch:%{epoch}:}%{version}-%{release}}
+%{?with_kmrml:Requires: trinity-kmrml = %{?epoch:%{epoch}:}%{version}-%{release}}
 Requires: trinity-kolourpaint = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires: trinity-kooka = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires: trinity-kpdf = %{?epoch:%{epoch}:}%{version}-%{release}
@@ -223,13 +194,13 @@ Requires: trinity-ksvg = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires: trinity-kview = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires: trinity-kviewshell = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires: trinity-libkscan = %{?epoch:%{epoch}:}%{version}-%{release}
-%if 0%{?with_pdf}
+%if %{with pdf}
 Requires: trinity-libpoppler-tqt = %{?epoch:%{epoch}:}%{version}-%{release}
 %endif
 
 %description
 Graphics applications for the Trinity Desktop Environment, including
-%if 0%{?build_kamera}
+%if %{with kamera}
 * kamera (digital camera support)
 %endif
 * kcoloredit (palette editor and color chooser)
@@ -251,7 +222,7 @@ Graphics applications for the Trinity Desktop Environment, including
 
 ##########
 
-%if 0%{?build_kamera}
+%if %{with kamera}
 
 %package -n trinity-kamera
 Summary:	Digital camera io_slave for Konqueror
@@ -327,7 +298,7 @@ tags, etc. all from within the file manager).
 %{tde_tdelibdir}/tdefile_jpeg.so
 %{tde_tdelibdir}/tdefile_pcx.la
 %{tde_tdelibdir}/tdefile_pcx.so
-%if 0%{?with_pdf}
+%if %{with pdf}
 %{tde_tdelibdir}/tdefile_pdf.la
 %{tde_tdelibdir}/tdefile_pdf.so
 %endif
@@ -358,7 +329,7 @@ tags, etc. all from within the file manager).
 %{tde_datadir}/services/tdefile_ico.desktop
 %{tde_datadir}/services/tdefile_jpeg.desktop
 %{tde_datadir}/services/tdefile_pcx.desktop
-%if 0%{?with_pdf}
+%if %{with pdf}
 %{tde_datadir}/services/tdefile_pdf.desktop
 %endif
 %{tde_datadir}/services/tdefile_png.desktop
@@ -518,7 +489,7 @@ TDEIconedit allows you easily to create and edit icons.
 
 ##########
 
-%if 0%{?build_kmrml}
+%if %{with kmrml}
 
 %package -n trinity-kmrml
 Summary: 	A Konqueror plugin for searching pictures
@@ -876,7 +847,7 @@ This package contains development files for Trinity's scanner library.
 
 ##########
 
-%if 0%{?with_pdf}
+%if %{with pdf}
 %package -n trinity-libpoppler-tqt
 Summary:	TQt support for Poppler
 Group:		Productivity/Graphics/Viewers
@@ -896,7 +867,7 @@ This library is used by the Trinity graphics file plugins for PDF support.
 
 ##########
 
-%if 0%{?with_pdf}
+%if %{with pdf}
 %package -n trinity-libpoppler-tqt-devel
 Summary:	Development files for TQt support for Poppler
 Group:		Development/Libraries/Other
@@ -931,7 +902,7 @@ Provides:	trinity-kdegraphics-devel = %{?epoch:%{epoch}:}%{version}-%{release}
 
 Requires: %{name} = %{?epoch:%{epoch}:}%{version}-%{release}
 Requires: trinity-libkscan-devel = %{?epoch:%{epoch}:}%{version}-%{release}
-%if 0%{?with_pdf}
+%if %{with pdf}
 Requires: trinity-libpoppler-tqt-devel = %{?epoch:%{epoch}:}%{version}-%{release}
 %endif
 
@@ -948,7 +919,7 @@ applications against tdegraphics libraries.
 %{tde_tdeincludedir}/kviewshell/
 %{tde_tdeincludedir}/libtext2path-0.1/
 %{tde_libdir}/libtdeinit_kview.la
-%if 0%{?build_kmrml}
+%if %{with kmrml}
 %{tde_libdir}/libtdeinit_mrmlsearch.la
 %endif
 %{tde_libdir}/libkghostviewlib.la
@@ -969,111 +940,28 @@ applications against tdegraphics libraries.
 # cmake
 %{tde_datadir}/cmake/*
 
-##########
+%prep -a
 
-%if 0%{?suse_version} && 0%{?opensuse_bs} == 0
-%debug_package
-%endif
-
-##########
-
-%prep
-%autosetup -p1 -n %{tarball_name}-%{version}%{?preversion:~%{preversion}}
-
-%if 0%{?build_kamera} == 0
+%if %{without kamera}
 %__rm -rf doc/kamera/
 %endif
 
 # Fix applications icons
 %__sed -i "kooka/kooka.desktop" -e "s|^Icon=.*|Icon=kooka|"
 
-# Fix FTBFS in RHEL 5
-%if 0%{?rhel} && 0%{?rhel} <= 5
-%__sed -i "kpdf/xpdf/aconf.h" \
-       -e "s|#define HAVE_MKSTEMPS 1|#define HAVE_MKSTEMPS 0|"
-%__sed -i "tdefile-plugins/dependencies/poppler-tqt/CMakeLists.txt" \
-       -e "/link_directories/ s|$|\n  \${POPPLER_LIBRARY_DIRS}|" \
-       -e "/{POPPLER_INCLUDE_DIRS/ s|$|\n  \${POPPLER_INCLUDE_DIRS}/..|"
-%endif
 
-
-%build
+%conf -p
 unset QTDIR QTINC QTLIB
 export PATH="%{tde_bindir}:${PATH}"
 export PKG_CONFIG_PATH="%{tde_libdir}/pkgconfig:${PKG_CONFIG_PATH}"
 
-# Specific path for RHEL4
-if [ -d /usr/X11R6 ]; then
-  export RPM_OPT_FLAGS="${RPM_OPT_FLAGS} -I/usr/X11R6/include -L/usr/X11R6/%{_lib}"
-fi
 
-if ! rpm -E %%cmake|grep -e 'cd build\|cd ${CMAKE_BUILD_DIR:-build}'; then
-  %__mkdir_p build
-  cd build
-fi
-
-# Warning: GCC visibility causes FTBFS [Bug #1285]
-%cmake \
-  -DCMAKE_BUILD_TYPE="RelWithDebInfo" \
-  -DCMAKE_C_FLAGS="${RPM_OPT_FLAGS}" \
-  -DCMAKE_CXX_FLAGS="${RPM_OPT_FLAGS}" \
-  -DCMAKE_SKIP_RPATH=OFF \
-  -DCMAKE_SKIP_INSTALL_RPATH=OFF \
-  -DCMAKE_INSTALL_RPATH="%{tde_libdir}" \
-  -DCMAKE_NO_BUILTIN_CHRPATH=ON \
-  -DCMAKE_VERBOSE_MAKEFILE=ON \
-  -DWITH_GCC_VISIBILITY=OFF \
-  \
-  -DCMAKE_INSTALL_PREFIX=%{tde_prefix} \
-  -DBIN_INSTALL_DIR=%{tde_bindir} \
-  -DCONFIG_INSTALL_DIR="%{tde_confdir}" \
-  -DINCLUDE_INSTALL_DIR=%{tde_tdeincludedir} \
-  -DLIB_INSTALL_DIR=%{tde_libdir} \
-  -DSHARE_INSTALL_PREFIX=%{tde_datadir} \
-  -DPKGCONFIG_INSTALL_DIR="%{tde_libdir}/pkgconfig" \
-  \
-  %{?with_t1lib:-DWITH_T1LIB=ON} \
-  %{?with_paper:-DWITH_LIBPAPER=ON} \
-  -DWITH_TIFF=ON \
-  -DWITH_OPENEXR=ON \
-  -DWITH_PDF=%{?with_pdf:ON}%{?!with_pdf:OFF} \
-  -DBUILD_ALL=ON \
-  -DBUILD_KUICKSHOW=OFF \
-  %{!?build_kmrml:-DBUILD_KMRML=OFF} \
-  %{!?build_kamera:-DBUILD_KAMERA=OFF} \
-  ..
-
-%__make %{?_smp_mflags} || %__make
-
-
-%install
-export PATH="%{tde_bindir}:${PATH}"
-%__make install DESTDIR=%{buildroot} -C build
-
+%install -a
 # Adds missing icons in 'hicolor' theme
 %__mkdir_p "%{?buildroot}%{tde_datadir}/icons/hicolor/"{16x16,32x32,48x48,64x64}"/apps/"
 pushd "%{?buildroot}%{tde_datadir}/icons"
 for i in {16,32,48,64}; do %__cp $BUILD_ROOT%{tde_datadir}/icons/crystalsvg/"$i"x"$i"/devices/scanner.png %{buildroot}%{tde_datadir}/icons/hicolor/"$i"x"$i"/apps/kooka.png; done
 popd
-
-# Updates applications categories for openSUSE
-%if 0%{?suse_version}
-%suse_update_desktop_file    %{?buildroot}%{tde_tdeappdir}/kpovmodeler.desktop    Graphics 3DGraphics
-%suse_update_desktop_file    %{?buildroot}%{tde_tdeappdir}/kolourpaint.desktop    Graphics RasterGraphics
-%suse_update_desktop_file    %{?buildroot}%{tde_tdeappdir}/tdeiconedit.desktop    Graphics RasterGraphics
-%suse_update_desktop_file    %{?buildroot}%{tde_tdeappdir}/kview.desktop          Graphics Viewer
-%suse_update_desktop_file    %{?buildroot}%{tde_tdeappdir}/kooka.desktop          Graphics Scanning
-%suse_update_desktop_file -r %{?buildroot}%{tde_tdeappdir}/kruler.desktop         Utility DesktopUtility
-%suse_update_desktop_file -r %{?buildroot}%{tde_tdeappdir}/ksnapshot.desktop      Utility DesktopUtility
-%suse_update_desktop_file -r %{?buildroot}%{tde_tdeappdir}/kcolorchooser.desktop  Utility DesktopUtility
-%suse_update_desktop_file -r %{?buildroot}%{tde_tdeappdir}/kcoloredit.desktop     Utility DesktopUtility
-%suse_update_desktop_file -u %{?buildroot}%{tde_tdeappdir}/kfax.desktop           Office Viewer
-%suse_update_desktop_file    %{?buildroot}%{tde_tdeappdir}/kghostview.desktop     Office Viewer
-%suse_update_desktop_file    %{?buildroot}%{tde_tdeappdir}/kdvi.desktop           Office Viewer
-%suse_update_desktop_file    %{?buildroot}%{tde_tdeappdir}/kpdf.desktop           Office Viewer
-%suse_update_desktop_file    %{?buildroot}%{tde_tdeappdir}/kfaxview.desktop       Office Viewer
-%suse_update_desktop_file    %{?buildroot}%{tde_tdeappdir}/kamera.desktop
-%endif
 
 # Links duplicate files
 %fdupes "%{?buildroot}"
