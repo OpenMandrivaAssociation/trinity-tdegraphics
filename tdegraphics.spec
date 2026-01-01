@@ -46,40 +46,31 @@ URL:		http://www.trinitydesktop.org/
 
 License:		GPLv2+
 
-#Vendor:			Trinity Desktop
-#Packager:		Francois Andriot <francois.andriot@free.fr>
-
-Prefix:		%{tde_prefix}
-
 Source0:	https://mirror.ppa.trinitydesktop.org/trinity/releases/R%{tde_version}/main/core/%{tarball_name}-%{version}%{?preversion:~%{preversion}}.tar.xz
 Source1:	%{name}-rpmlintrc
 
-# scheduled for R14.1.6
-Patch0:   tdegraphics-poppler-25.10.patch
+# submitted to upstream - https://mirror.git.trinitydesktop.org/gitea/TDE/tdegraphics/issues/149
+Patch0:   tdegraphics-poppler-25.12.0-fix.patch
 
 BuildSystem:    cmake
+
 BuildOption:    -DCMAKE_BUILD_TYPE="RelWithDebInfo"
 BuildOption:    -DCMAKE_SKIP_RPATH=OFF
 BuildOption:    -DCMAKE_SKIP_INSTALL_RPATH=OFF
 BuildOption:    -DCMAKE_BUILD_WITH_INSTALL_RPATH=ON
-BuildOption:    -DCMAKE_INSTALL_RPATH="%{tde_libdir}"
-BuildOption:    -DCMAKE_NO_BUILTIN_CHRPATH=ON
+BuildOption:    -DCMAKE_INSTALL_RPATH=%{tde_libdir}
 BuildOption:    -DCMAKE_INSTALL_PREFIX=%{tde_prefix}
-BuildOption:    -DBIN_INSTALL_DIR=%{tde_bindir}
-BuildOption:    -DCONFIG_INSTALL_DIR="%{tde_confdir}"
+BuildOption:    -DCONFIG_INSTALL_DIR=%{tde_confdir}
 BuildOption:    -DINCLUDE_INSTALL_DIR=%{tde_tdeincludedir}
-BuildOption:    -DLIB_INSTALL_DIR=%{tde_libdir}
-BuildOption:    -DSHARE_INSTALL_PREFIX=%{tde_datadir}
-BuildOption:    -DPKGCONFIG_INSTALL_DIR="%{tde_libdir}/pkgconfig"
+BuildOption:    -DPKGCONFIG_INSTALL_DIR=%{tde_libdir}/pkgconfig
 BuildOption:    -DWITH_TIFF=ON -DWITH_OPENEXR=ON
 BuildOption:    -DBUILD_ALL=ON -DBUILD_KUICKSHOW=OFF
-%{?with_t1lib:BuildOption:    -DWITH_T1LIB=ON}
-%{?with_paper:BuildOption:    -DWITH_LIBPAPER=ON}
-%{?with_pdf:BuildOption:    -DWITH_PDF=ON}
-%{?!with_pdf:BuildOption:    -DWITH_PDF=OFF}
-%{!?with_kmrml:BuildOption:    -DBUILD_KMRML=OFF}
-%{?with_kamera:BuildOption:    -DBUILD_KAMERA=ON}
-%{!?with_kamera:BuildOption:    -DBUILD_KAMERA=OFF}
+BuildOption:    -DWITH_T1LIB=%{!?with_t1lib:OFF}%{?with_t1lib:ON}
+BuildOption:    -DWITH_LIBPAPER=%{!?with_paper:OFF}%{?with_paper:ON}
+BuildOption:    -DWITH_PDF=%{!?with_pdf:OFF}%{?with_pdf:ON}
+BuildOption:    -DBUILD_KMRML=%{!?with_kmrml:OFF}%{?with_kmrml:ON}
+BuildOption:    -DBUILD_KAMERA=%{!?with_kamera:OFF}%{?with_kamera:ON}
+BuildOption:    -DWITH_GCC_VISIBILITY=%{!?with_clang:ON}%{?with_clang:OFF}
 
 BuildRequires: trinity-tdelibs-devel >= %{tde_version}
 BuildRequires: trinity-tdebase-devel >= %{tde_version}

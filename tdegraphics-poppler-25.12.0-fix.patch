@@ -1,0 +1,96 @@
+diff -up trinity-tdegraphics-14.1.5/tdefile-plugins/dependencies/poppler-tqt/poppler-document.cpp.omv trinity-tdegraphics-14.1.5/tdefile-plugins/dependencies/poppler-tqt/poppler-document.cpp
+--- trinity-tdegraphics-14.1.5/tdefile-plugins/dependencies/poppler-tqt/poppler-document.cpp.omv	2025-08-18 22:26:48.000000000 -0400
++++ trinity-tdegraphics-14.1.5/tdefile-plugins/dependencies/poppler-tqt/poppler-document.cpp	2026-01-01 16:42:07.000000000 -0500
+@@ -89,7 +89,7 @@ bool Document::unlock(const TQCString &p
+   if (data->locked) {
+     /* racier then it needs to be */
+ #   if (POPPLER_VERSION_C >= 22003000)
+-    DocumentData *doc2 = new DocumentData(std::make_unique<GooString>(data->doc.getFileName()),
++    DocumentData *doc2 = new DocumentData(std::make_unique<GooString>(data->doc.getFileName()->toStr()),
+                                           GooString(password.data()));
+ #   else
+     GooString *filename = new GooString(data->doc.getFileName());
+@@ -225,7 +225,7 @@ TQString Document::getInfo( const TQStri
+       isUnicode = gFalse;
+       i = 0;
+     }
+-    while ( i < obj.getString()->getLength() )
++    while ( i < obj.getString()->size() )
+     {
+       if ( isUnicode )
+       {
+diff -up trinity-tdegraphics-14.1.5/tdefile-plugins/dependencies/poppler-tqt/poppler-page.cpp.omv trinity-tdegraphics-14.1.5/tdefile-plugins/dependencies/poppler-tqt/poppler-page.cpp
+--- trinity-tdegraphics-14.1.5/tdefile-plugins/dependencies/poppler-tqt/poppler-page.cpp.omv	2025-08-18 22:26:48.000000000 -0400
++++ trinity-tdegraphics-14.1.5/tdefile-plugins/dependencies/poppler-tqt/poppler-page.cpp	2025-12-18 20:21:41.000000000 -0500
+@@ -184,16 +184,24 @@ TQValueList<TextBox*> Page::textList() c
+       0, false, false, false, -1, -1, -1, -1);
+ 
+ # if (POPPLER_VERSION_C >= 21011000)
+-  std::unique_ptr<TextWordList> word_list = output_dev->makeWordList();
+-# else
+-  TextWordList *word_list = output_dev->makeWordList();
+-# endif
++  const std::unique_ptr<TextWordList> word_list = output_dev->makeWordList();
+ 
+-  if (!word_list) {
+-    delete output_dev;
+-    return output_list;
++  //const std::vector<TextWord *> &words = word_list->getWords();
++  for (const TextWord *word : word_list->getWords()) {
++    std::unique_ptr<GooString> word_str { word->getText() };
++    TQString string = TQString::fromUtf8(word_str->GOO_GET_CSTR());
++    word_str.reset(nullptr);
++    double xMin, yMin, xMax, yMax;
++    word->getBBox(&xMin, &yMin, &xMax, &yMax);
++
++    TextBox* text_box = new TextBox(string, Rectangle(xMin, yMin, xMax, yMax));
++
++    output_list.append(text_box);
+   }
+ 
++# else
++  TextWordList *word_list = output_dev->makeWordList();
++
+   for (int i = 0; i < word_list->getLength(); i++) {
+     TextWord *word = word_list->get(i);
+     GooString *word_str = word->getText();
+@@ -206,6 +214,14 @@ TQValueList<TextBox*> Page::textList() c
+ 
+     output_list.append(text_box);
+   }
++# endif
++
++  if (!word_list) {
++    delete output_dev;
++    return output_list;
++  }
++
++
+ 
+ # if (POPPLER_VERSION_C < 21011000)
+   delete word_list;
+diff -up trinity-tdegraphics-14.1.5/tdefile-plugins/dependencies/poppler-tqt/poppler-private.cpp.omv trinity-tdegraphics-14.1.5/tdefile-plugins/dependencies/poppler-tqt/poppler-private.cpp
+--- trinity-tdegraphics-14.1.5/tdefile-plugins/dependencies/poppler-tqt/poppler-private.cpp.omv	2025-08-18 22:26:48.000000000 -0400
++++ trinity-tdegraphics-14.1.5/tdefile-plugins/dependencies/poppler-tqt/poppler-private.cpp	2025-12-18 21:05:58.000000000 -0500
+@@ -57,7 +57,7 @@ TQString UnicodeParsedString(CONST_064 G
+         isUnicode = gFalse;
+         i = 0;
+     }
+-    while ( i < s1->getLength() )
++    while ( i < s1->size() )
+     {
+         if ( isUnicode )
+         {
+@@ -129,9 +129,9 @@ void DocumentData::addTocChildren( TQDom
+                 // get the destination for the page now, but it's VERY time consuming,
+                 // so better storing the reference and provide the viewport on demand
+                 CONST_064 GooString *s = g->getNamedDest();
+-                TQChar *charArray = new TQChar[s->getLength()];
+-                for (int i = 0; i < s->getLength(); ++i) charArray[i] = TQChar(s->GOO_GET_CSTR()[i]);
+-                    TQString aux(charArray, s->getLength());
++                TQChar *charArray = new TQChar[s->size()];
++                for (int i = 0; i < s->size(); ++i) charArray[i] = TQChar(s->GOO_GET_CSTR()[i]);
++                    TQString aux(charArray, s->size());
+                     item.setAttribute( "DestinationName", aux );
+                     delete[] charArray;
+                 }
