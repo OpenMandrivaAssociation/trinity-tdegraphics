@@ -1,0 +1,49 @@
+diff -up trinity-tdegraphics-14.1.5/kpdf/core/document.cpp.omv~ trinity-tdegraphics-14.1.5/kpdf/core/document.cpp
+diff -up trinity-tdegraphics-14.1.5/tdefile-plugins/dependencies/poppler-tqt/poppler-page.cpp.omv~ trinity-tdegraphics-14.1.5/tdefile-plugins/dependencies/poppler-tqt/poppler-page.cpp
+--- trinity-tdegraphics-14.1.5/tdefile-plugins/dependencies/poppler-tqt/poppler-page.cpp.omv~	2026-02-07 16:11:39.094318876 +0100
++++ trinity-tdegraphics-14.1.5/tdefile-plugins/dependencies/poppler-tqt/poppler-page.cpp	2026-02-07 16:13:27.068439798 +0100
+@@ -144,7 +144,8 @@ TQString Page::getText(const Rectangle &
+   if (r.isNull())
+   {
+     rect = p->getCropBox();
+-    s = output_dev->getText(rect->x1, rect->y1, rect->x2, rect->y2);
++
++    s = output_dev->getText(PDFRectangle(rect->x1, rect->y1, rect->x2, rect->y2));
+   }
+   else
+   {
+@@ -152,7 +153,7 @@ TQString Page::getText(const Rectangle &
+     height = p->getCropHeight();
+     y1 = height - r.m_y2;
+     y2 = height - r.m_y1;
+-    s = output_dev->getText(r.m_x1, y1, r.m_x2, y2);
++    s = output_dev->getText(PDFRectangle(r.m_x1, y1, r.m_x2, y2));
+   }
+ 
+ # if (POPPLER_VERSION_C >= 25001000)
+@@ -188,7 +189,7 @@ TQValueList<TextBox*> Page::textList() c
+ 
+   //const std::vector<TextWord *> &words = word_list->getWords();
+   for (const TextWord *word : word_list->getWords()) {
+-    std::unique_ptr<GooString> word_str { word->getText() };
++    std::unique_ptr<std::string> word_str = word->getText();
+     TQString string = TQString::fromUtf8(word_str->GOO_GET_CSTR());
+     word_str.reset(nullptr);
+     double xMin, yMin, xMax, yMax;
+diff -up trinity-tdegraphics-14.1.5/tdefile-plugins/dependencies/poppler-tqt/poppler-private.cpp.omv~ trinity-tdegraphics-14.1.5/tdefile-plugins/dependencies/poppler-tqt/poppler-private.cpp
+--- trinity-tdegraphics-14.1.5/tdefile-plugins/dependencies/poppler-tqt/poppler-private.cpp.omv~	2026-02-07 16:10:25.566075667 +0100
++++ trinity-tdegraphics-14.1.5/tdefile-plugins/dependencies/poppler-tqt/poppler-private.cpp	2026-02-07 16:10:43.104285956 +0100
+@@ -77,11 +77,11 @@ TQString UnicodeParsedString(CONST_064 G
+ GooString *TQStringToGooString(const TQString &s)
+ {
+     int len = s.length();
+-    char *cstring = (char *)gmallocn(s.length(), sizeof(char));
++    char *cstring = (char *)malloc(s.length() * sizeof(char));
+     for (int i = 0; i < len; ++i)
+       cstring[i] = s.at(i).unicode();
+     GooString *ret = new GooString(cstring, len);
+-    gfree(cstring);
++    free(cstring);
+     return ret;
+ }
+ 

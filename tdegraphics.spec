@@ -41,6 +41,7 @@ Source1:	%{name}-rpmlintrc
 
 # submitted to upstream - https://mirror.git.trinitydesktop.org/gitea/TDE/tdegraphics/issues/149
 Patch0:   tdegraphics-poppler-25.12.0-fix.patch
+Patch1:   tdegraphics-poppler-26.02.0-fix.patch
 
 BuildSystem:    cmake
 
