@@ -11,7 +11,7 @@
 %if "%{?tde_version}" == ""
 %define tde_version 14.1.5
 %endif
-%define pkg_rel 3
+%define pkg_rel 32
 
 %define tde_pkg tdegraphics
 %define tde_prefix /opt/trinity
@@ -29,7 +29,7 @@
 
 Name:		trinity-%{tde_pkg}
 Version:	%{tde_version}
-Release:	%{?!preversion:%{pkg_rel}}%{?preversion:0_%{preversion}}%{?dist}1
+Release:	%{?!preversion:%{pkg_rel}}%{?preversion:0_%{preversion}}%{?dist}
 Summary:    Trinity Desktop Environment - Graphics Applications
 Group:      Productivity/Graphics/Viewers
 URL:		http://www.trinitydesktop.org/
@@ -38,10 +38,6 @@ License:		GPLv2+
 
 Source0:	https://mirror.ppa.trinitydesktop.org/trinity/releases/R%{tde_version}/main/core/%{tarball_name}-%{version}%{?preversion:~%{preversion}}.tar.xz
 Source1:	%{name}-rpmlintrc
-
-# submitted to upstream - https://mirror.git.trinitydesktop.org/gitea/TDE/tdegraphics/issues/149
-Patch0:   tdegraphics-poppler-25.12.0-fix.patch
-Patch1:   tdegraphics-poppler-26.02.0-fix.patch
 
 BuildSystem:    cmake
 
@@ -193,6 +189,11 @@ Graphics applications for the Trinity Desktop Environment, including
 * kruler (screen ruler and color measurement tool)
 * ksnapshot (screen capture utility)
 * kview (image viewer for GIF, JPEG, TIFF, etc.)
+
+%patchlist
+# submitted to upstream - https://mirror.git.trinitydesktop.org/gitea/TDE/tdegraphics/issues/149
+tdegraphics-poppler-25.12.0-fix.patch
+tdegraphics-poppler-26.02.0-fix.patch
 
 %files
 %defattr(-,root,root,-)
