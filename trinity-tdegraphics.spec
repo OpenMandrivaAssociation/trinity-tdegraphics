@@ -7,12 +7,6 @@
 %bcond kmrml 0
 
 # TDE variables
-%define tde_epoch 2
-%if "%{?tde_version}" == ""
-%define tde_version 14.1.5
-%endif
-%define pkg_rel 32
-
 %define tde_pkg tdegraphics
 %define tde_prefix /opt/trinity
 
@@ -28,15 +22,15 @@
 
 
 Name:		trinity-%{tde_pkg}
-Version:	%{tde_version}
-Release:	%{?!preversion:%{pkg_rel}}%{?preversion:0_%{preversion}}%{?dist}
+Version:	14.1.5
+Release:	33
 Summary:    Trinity Desktop Environment - Graphics Applications
 Group:      Productivity/Graphics/Viewers
 URL:		http://www.trinitydesktop.org/
 
 License:		GPLv2+
 
-Source0:	https://mirror.ppa.trinitydesktop.org/trinity/releases/R%{tde_version}/main/core/%{tarball_name}-%{version}%{?preversion:~%{preversion}}.tar.xz
+Source0:	https://mirror.ppa.trinitydesktop.org/trinity/releases/R%{version}/main/core/%{tarball_name}-%{version}.tar.xz
 Source1:	%{name}-rpmlintrc
 
 BuildSystem:    cmake
@@ -55,10 +49,10 @@ BuildOption:    -DBUILD_KMRML=%{!?with_kmrml:OFF}%{?with_kmrml:ON}
 BuildOption:    -DBUILD_KAMERA=%{!?with_kamera:OFF}%{?with_kamera:ON}
 BuildOption:    -DWITH_GCC_VISIBILITY=%{!?with_clang:ON}%{?with_clang:OFF}
 
-BuildRequires: trinity-tdelibs-devel >= %{tde_version}
-BuildRequires: trinity-tdebase-devel >= %{tde_version}
+BuildRequires: trinity-tdelibs-devel >= %{version}
+BuildRequires: trinity-tdebase-devel >= %{version}
 
-BuildRequires:	trinity-tde-cmake >= %{tde_version}
+BuildRequires:	trinity-tde-cmake >= %{version}
 
 %{!?with_clang:BuildRequires:	gcc-c++}
 
@@ -137,39 +131,39 @@ BuildRequires:  pkgconfig(xft)
 %if %{with kmrml}
 #Requires:		gift
 %else
-Obsoletes:		trinity-kmrml < %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:		trinity-kmrml < %{EVRD}
 %endif
 
-Obsoletes:	trinity-kdegraphics < %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:	trinity-kdegraphics = %{?epoch:%{epoch}:}%{version}-%{release}
-Obsoletes:	trinity-kdegraphics-libs < %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:	trinity-kdegraphics-libs = %{?epoch:%{epoch}:}%{version}-%{release}
-Obsoletes:	trinity-kdegraphics-extras < %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:	trinity-kdegraphics-extras = %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:	trinity-kdegraphics < %{EVRD}
+Provides:	trinity-kdegraphics = %{EVRD}
+Obsoletes:	trinity-kdegraphics-libs < %{EVRD}
+Provides:	trinity-kdegraphics-libs = %{EVRD}
+Obsoletes:	trinity-kdegraphics-extras < %{EVRD}
+Provides:	trinity-kdegraphics-extras = %{EVRD}
 
 
-%{?with_kamera:Requires: trinity-kamera = %{?epoch:%{epoch}:}%{version}-%{release}}
-Requires: trinity-kcoloredit = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires: %{name}-kfile-plugins = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires: trinity-kdvi = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires: trinity-kfax = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires: trinity-kfaxview = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires: trinity-kgamma = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires: trinity-kghostview = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires: trinity-kiconedit = %{?epoch:%{epoch}:}%{version}-%{release}
-%{?with_kmrml:Requires: trinity-kmrml = %{?epoch:%{epoch}:}%{version}-%{release}}
-Requires: trinity-kolourpaint = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires: trinity-kooka = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires: trinity-kpdf = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires: trinity-kpovmodeler = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires: trinity-kruler = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires: trinity-ksnapshot = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires: trinity-ksvg = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires: trinity-kview = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires: trinity-kviewshell = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires: trinity-libkscan = %{?epoch:%{epoch}:}%{version}-%{release}
+%{?with_kamera:Requires: trinity-kamera = %{EVRD}}
+Requires: trinity-kcoloredit = %{EVRD}
+Requires: %{name}-kfile-plugins = %{EVRD}
+Requires: trinity-kdvi = %{EVRD}
+Requires: trinity-kfax = %{EVRD}
+Requires: trinity-kfaxview = %{EVRD}
+Requires: trinity-kgamma = %{EVRD}
+Requires: trinity-kghostview = %{EVRD}
+Requires: trinity-kiconedit = %{EVRD}
+%{?with_kmrml:Requires: trinity-kmrml = %{EVRD}}
+Requires: trinity-kolourpaint = %{EVRD}
+Requires: trinity-kooka = %{EVRD}
+Requires: trinity-kpdf = %{EVRD}
+Requires: trinity-kpovmodeler = %{EVRD}
+Requires: trinity-kruler = %{EVRD}
+Requires: trinity-ksnapshot = %{EVRD}
+Requires: trinity-ksvg = %{EVRD}
+Requires: trinity-kview = %{EVRD}
+Requires: trinity-kviewshell = %{EVRD}
+Requires: trinity-libkscan = %{EVRD}
 %if %{with pdf}
-Requires: trinity-libpoppler-tqt = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires: trinity-libpoppler-tqt = %{EVRD}
 %endif
 
 %description
@@ -451,8 +445,8 @@ online.
 Summary:	An icon editor for Trinity
 Group:		Productivity/Graphics/Viewers
 
-Obsoletes:	trinity-kiconedit < %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:	trinity-kiconedit = %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:	trinity-kiconedit < %{EVRD}
+Provides:	trinity-kiconedit = %{EVRD}
 
 %description -n trinity-tdeiconedit
 TDEIconedit allows you easily to create and edit icons.
@@ -814,7 +808,7 @@ It provides an easy-to-use library, which allows you to access your scanner
 %package -n trinity-libkscan-devel
 Summary:	Development files for the Trinity scanner library
 Group:		Development/Libraries/Other
-Requires:	trinity-libkscan = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:	trinity-libkscan = %{EVRD}
 
 %description -n trinity-libkscan-devel
 This package contains development files for Trinity's scanner library.
@@ -830,10 +824,10 @@ This package contains development files for Trinity's scanner library.
 %package -n trinity-libpoppler-tqt
 Summary:	TQt support for Poppler
 Group:		Productivity/Graphics/Viewers
-Obsoletes:	poppler-tqt < %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:	poppler-tqt = %{?epoch:%{epoch}:}%{version}-%{release}
-Obsoletes:	%{name}-libpoppler-tqt < %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:	%{name}-libpoppler-tqt = %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:	poppler-tqt < %{EVRD}
+Provides:	poppler-tqt = %{EVRD}
+Obsoletes:	%{name}-libpoppler-tqt < %{EVRD}
+Provides:	%{name}-libpoppler-tqt = %{EVRD}
 
 %description -n trinity-libpoppler-tqt
 TQt support library for Poppler.
@@ -850,11 +844,11 @@ This library is used by the Trinity graphics file plugins for PDF support.
 %package -n trinity-libpoppler-tqt-devel
 Summary:	Development files for TQt support for Poppler
 Group:		Development/Libraries/Other
-Requires:	trinity-libpoppler-tqt = %{?epoch:%{epoch}:}%{version}-%{release}
-Obsoletes:	poppler-tqt-devel < %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:	poppler-tqt-devel = %{?epoch:%{epoch}:}%{version}-%{release}
-Obsoletes:	%{name}-libpoppler-tqt-devel < %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:	%{name}-libpoppler-tqt-devel = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires:	trinity-libpoppler-tqt = %{EVRD}
+Obsoletes:	poppler-tqt-devel < %{EVRD}
+Provides:	poppler-tqt-devel = %{EVRD}
+Obsoletes:	%{name}-libpoppler-tqt-devel < %{EVRD}
+Provides:	%{name}-libpoppler-tqt-devel = %{EVRD}
 
 %description -n trinity-libpoppler-tqt-devel
 Development files of TQt support library for Poppler.
@@ -876,13 +870,13 @@ This package contains the development files needed to compile applications again
 Summary:	Development files for tdegraphics
 Group:		Development/Libraries/Other
 
-Obsoletes:	trinity-kdegraphics-devel < %{?epoch:%{epoch}:}%{version}-%{release}
-Provides:	trinity-kdegraphics-devel = %{?epoch:%{epoch}:}%{version}-%{release}
+Obsoletes:	trinity-kdegraphics-devel < %{EVRD}
+Provides:	trinity-kdegraphics-devel = %{EVRD}
 
-Requires: %{name} = %{?epoch:%{epoch}:}%{version}-%{release}
-Requires: trinity-libkscan-devel = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires: %{name} = %{EVRD}
+Requires: trinity-libkscan-devel = %{EVRD}
 %if %{with pdf}
-Requires: trinity-libpoppler-tqt-devel = %{?epoch:%{epoch}:}%{version}-%{release}
+Requires: trinity-libpoppler-tqt-devel = %{EVRD}
 %endif
 
 %description devel
