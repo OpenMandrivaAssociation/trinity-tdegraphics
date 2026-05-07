@@ -23,7 +23,7 @@
 
 Name:		trinity-%{tde_pkg}
 Version:	14.1.5
-Release:	33
+Release:	34
 Summary:    Trinity Desktop Environment - Graphics Applications
 Group:      Productivity/Graphics/Viewers
 URL:		http://www.trinitydesktop.org/
