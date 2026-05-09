@@ -1,0 +1,58 @@
+diff -up trinity-tdegraphics-14.1.5/tdefile-plugins/dependencies/poppler-tqt/poppler-document.cpp.omv~ trinity-tdegraphics-14.1.5/tdefile-plugins/dependencies/poppler-tqt/poppler-document.cpp
+--- trinity-tdegraphics-14.1.5/tdefile-plugins/dependencies/poppler-tqt/poppler-document.cpp.omv~	2026-05-09 14:57:48.319989601 +0200
++++ trinity-tdegraphics-14.1.5/tdefile-plugins/dependencies/poppler-tqt/poppler-document.cpp	2026-05-09 15:03:15.161476302 +0200
+@@ -201,7 +201,7 @@ TQString Document::getInfo( const TQStri
+ 
+   TQString result;
+   Object obj;
+-  CONST_064 GooString *s1;
++  std::string s1;
+   GBool isUnicode;
+   Unicode u;
+   int i;
+@@ -215,7 +215,7 @@ TQString Document::getInfo( const TQStri
+   if (!obj.isNull() && obj.isString())
+   {
+     s1 = obj.getString();
+-    if ( ( s1->getChar(0) & 0xff ) == 0xfe && ( s1->getChar(1) & 0xff ) == 0xff )
++    if ( static_cast<unsigned char>(s1[0]) == 0xfe && static_cast<unsigned char>(s1[1]) == 0xff )
+     {
+       isUnicode = gTrue;
+       i = 2;
+@@ -225,16 +225,16 @@ TQString Document::getInfo( const TQStri
+       isUnicode = gFalse;
+       i = 0;
+     }
+-    while ( i < obj.getString()->size() )
++    while ( i < obj.getString().size() )
+     {
+       if ( isUnicode )
+       {
+-	u = ( ( s1->getChar(i) & 0xff ) << 8 ) | ( s1->getChar(i+1) & 0xff );
++	u = ( static_cast<unsigned char>( s1[i] ) << 8 ) | static_cast<unsigned char>(s1[i+1]);
+ 	i += 2;
+       }
+       else
+       {
+-	u = s1->getChar(i) & 0xff;
++	u = static_cast<unsigned char>(s1[i]);
+ 	++i;
+       }
+       result += unicodeToTQString( &u, 1 );
+@@ -285,14 +285,9 @@ TQDateTime Document::getDate( const TQSt
+ #endif
+   if (!obj.isNull() && obj.isString())
+   {
+-#   if (POPPLER_VERSION_C >= 21008000)
+-    const GooString *s = obj.getString();
+-#   else
+-    TQString tqs = UnicodeParsedString(obj.getString());
+-    const char *s = tqs.latin1();
+-#   endif
++    std::string s = obj.getString();
+     // TODO do something with the timezone information
+-    if (parseDateString(s, &year, &mon, &day, &hour, &min, &sec, &tz, &tz_hour, &tz_minute))
++    if (parseDateString(s.c_str(), &year, &mon, &day, &hour, &min, &sec, &tz, &tz_hour, &tz_minute))
+     {
+       TQDate d( year, mon, day );  //CHECK: it was mon-1, Jan->0 (??)
+       TQTime t( hour, min, sec );

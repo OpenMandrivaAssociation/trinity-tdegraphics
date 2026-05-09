@@ -188,6 +188,7 @@ Graphics applications for the Trinity Desktop Environment, including
 # submitted to upstream - https://mirror.git.trinitydesktop.org/gitea/TDE/tdegraphics/issues/149
 tdegraphics-poppler-25.12.0-fix.patch
 tdegraphics-poppler-26.02.0-fix.patch
+tdegraphics-poppler-26.05.0-fix.patch
 
 %files
 %defattr(-,root,root,-)
