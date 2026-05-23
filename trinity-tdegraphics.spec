@@ -16,14 +16,14 @@
 %define _disable_rebuild_configure 1
 
 # fixes error: Empty %files file …/debugsourcefiles.list
-%define _debugsource_template %{nil}
+%undefine _debugsource_template
 
 %define tarball_name %{tde_pkg}-trinity
 
 
 Name:		trinity-%{tde_pkg}
-Version:	14.1.5
-Release:	34
+Version:	14.1.6
+Release:	1
 Summary:    Trinity Desktop Environment - Graphics Applications
 Group:      Productivity/Graphics/Viewers
 URL:		http://www.trinitydesktop.org/
@@ -186,9 +186,9 @@ Graphics applications for the Trinity Desktop Environment, including
 
 %patchlist
 # submitted to upstream - https://mirror.git.trinitydesktop.org/gitea/TDE/tdegraphics/issues/149
-tdegraphics-poppler-25.12.0-fix.patch
-tdegraphics-poppler-26.02.0-fix.patch
-tdegraphics-poppler-26.05.0-fix.patch
+# tdegraphics-poppler-25.12.0-fix.patch
+# tdegraphics-poppler-26.02.0-fix.patch
+# tdegraphics-poppler-26.05.0-fix.patch
 
 %files
 %defattr(-,root,root,-)
