@@ -189,6 +189,8 @@ Graphics applications for the Trinity Desktop Environment, including
 # tdegraphics-poppler-25.12.0-fix.patch
 # tdegraphics-poppler-26.02.0-fix.patch
 # tdegraphics-poppler-26.05.0-fix.patch
+# poppler 26.10: getCropBox() returns a reference; Unicode lives in CharTypes.h
+tdegraphics-poppler-26.10.0-fix.patch
 
 %files
 %defattr(-,root,root,-)

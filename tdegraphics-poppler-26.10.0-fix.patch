@@ -1,0 +1,26 @@
+diff -Naur tdegraphics-trinity-14.1.6/tdefile-plugins/dependencies/poppler-tqt/poppler-page.cpp tdegraphics-trinity-14.1.6/tdefile-plugins/dependencies/poppler-tqt/poppler-page.cpp
+--- tdegraphics-trinity-14.1.6/tdefile-plugins/dependencies/poppler-tqt/poppler-page.cpp	2026-04-16 01:23:11.000000000 +0200
++++ tdegraphics-trinity-14.1.6/tdefile-plugins/dependencies/poppler-tqt/poppler-page.cpp	2026-10-16 18:40:29.558541626 +0200
+@@ -143,7 +143,11 @@
+   p = data->doc->data->doc.getCatalog()->getPage(data->index + 1);
+   if (r.isNull())
+   {
++#if (POPPLER_VERSION_C >= 26010000)
++    rect = &p->getCropBox();
++#else
+     rect = p->getCropBox();
++#endif
+ #if (POPPLER_VERSION_C >= 26001000)
+     s = output_dev->getText(PDFRectangle(rect->x1, rect->y1, rect->x2, rect->y2));
+ #else
+diff -Naur tdegraphics-trinity-14.1.6/tdefile-plugins/dependencies/poppler-tqt/poppler-private.h tdegraphics-trinity-14.1.6/tdefile-plugins/dependencies/poppler-tqt/poppler-private.h
+--- tdegraphics-trinity-14.1.6/tdefile-plugins/dependencies/poppler-tqt/poppler-private.h	2026-04-16 01:23:11.000000000 +0200
++++ tdegraphics-trinity-14.1.6/tdefile-plugins/dependencies/poppler-tqt/poppler-private.h	2026-10-16 18:40:29.558517005 +0200
+@@ -26,6 +26,7 @@
+ #include <tqdom.h>
+ 
+ #include <config.h>
++#include <CharTypes.h>
+ #include <Object.h>
+ #include <PDFDoc.h>
+ #include <FontInfo.h>
